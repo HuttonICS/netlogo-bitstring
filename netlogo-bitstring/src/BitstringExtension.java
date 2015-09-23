@@ -130,7 +130,7 @@ public class BitstringExtension extends DefaultClassManager {
 			}
 			Object obj = args[pos[i]].get();
 			if(obj instanceof NetLogoBitstring) {
-				bs[i] = (NetLogoBitstring)args[pos[i]];
+				bs[i] = (NetLogoBitstring)obj;
 			}
 			else {
 				throw new ExtensionException("Command expents a bitstring as argument " + (pos[i] + 1) + " but got a "

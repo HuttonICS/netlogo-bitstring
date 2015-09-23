@@ -40,7 +40,7 @@ public class FromString extends DefaultReporter {
 
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
-		String str = args[0].getString();
+		String str = args[0].get().toString();
 		if(!Bitstring.is10(str)) {
 			throw new ExtensionException("String \"" + str + "\" contains one or more characters not interpretable as 1 or 0");
 		}

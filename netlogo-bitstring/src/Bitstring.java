@@ -112,6 +112,7 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		this.length = string.length();
 		if(length > 0) {
 			Integer temp[] = new Integer[(int)Math.ceil((double)length / Integer.SIZE)];
+			Arrays.fill(temp, 0);
 			for(int i = 0; i < length; i++) {
 				int j = bitToArr(i);
 				if(is1(string.charAt(i))) {
@@ -425,10 +426,10 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		ArrayList<Boolean> list = new ArrayList<Boolean>(length);
 		for(int i = 0; i < length; i++) {
 			if(Math.random() < probs[i]) {
-				list.set(i, get(i));
+				list.add(i, get(i));
 			}
 			else {
-				list.set(i, !get(i));
+				list.add(i, !get(i));
 			}
 		}
 		return new Bitstring(list);
@@ -452,8 +453,8 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		if(start < 0 || start >= length) {
 			throw new IllegalArgumentException("Start index " + start + " is outside the range [0, " + length + "[");
 		}
-		if(finish <= 0 || finish > length) {
-			throw new IllegalArgumentException("Finish index " + finish + " is outside the range ]0, " + length + "]");
+		if(finish < 0 || finish > length) {
+			throw new IllegalArgumentException("Finish index " + finish + " is outside the range [0, " + length + "]");
 		}
 		if(finish < start) {
 			throw new IllegalArgumentException("Finish index " + finish + " must be >= start index " + start);
@@ -461,7 +462,7 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 
 		ArrayList<Boolean> list = new ArrayList<Boolean>(finish - start);
 		for(int i = start; i < finish; i++) {
-			list.set(i - start, get(i));
+			list.add(i - start, get(i));
 		}
 		return new Bitstring(list);
 	}
@@ -477,7 +478,7 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		ArrayList<Boolean> list = new ArrayList<Boolean>(this.length + other.length);
 
 		for(int i = 0; i < this.length + other.length; i++) {
-			list.set(i, (i < this.length ? get(i) : other.get(i - this.length)));
+			list.add(i, (i < this.length ? get(i) : other.get(i - this.length)));
 		}
 
 		return new Bitstring(list);
@@ -757,7 +758,7 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 	public ArrayList<Boolean> asList() {
 		ArrayList<Boolean> l = new ArrayList<Boolean>(length);
 		for(int i = 0; i < length; i++) {
-			l.set(i, get(i));
+			l.add(i, get(i));
 		}
 		return l;
 	}
@@ -1013,5 +1014,10 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		System.out.println("match = " + a.match(b));
 		Bitstring empty = new Bitstring(0);
 		System.out.println("empty clone " + empty.clone());
+		Bitstring string = new Bitstring("10101010101");
+		System.out.println(string);
+		System.out.println(string.subbitstring(0, 0));
+		System.out.println(string.subbitstring(0, 1));
+		System.out.println(string.subbitstring(0, string.size()));
 	}
 }
