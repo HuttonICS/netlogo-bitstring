@@ -7,7 +7,7 @@ import org.nlogo.api.Syntax;
 
 
 /**
- * Make.java, 
+ * Count.java, 
  *
  * Copyright (C) The James Hutton Institute 2015
  *
@@ -27,23 +27,45 @@ import org.nlogo.api.Syntax;
  */
 
 /**
- * <!-- Make -->
+ * <!-- Count -->
  * 
  * @author Gary Polhill
  */
-public class Make extends DefaultReporter {
+public class Count extends DefaultReporter {
 
-	@Override
-	public Syntax getSyntax() {
-		return Syntax.reporterSyntax(new int[] { Syntax.NumberType(), Syntax.BooleanType() },
-																	Syntax.WildcardType());
+	protected enum Mode {
+		ONE, ZERO
+	};
+
+	private final Mode mode;
+
+	public Count(Mode mode) {
+		this.mode = mode;
 	}
 
 	@Override
+	public Syntax getSyntax() {
+		return Syntax.reporterSyntax(new int[] { Syntax.WildcardType() }, Syntax.NumberType());
+	}
+
+	/**
+	 * <!-- report -->
+	 * 
+	 * @see org.nlogo.api.Reporter#report(org.nlogo.api.Argument[],
+	 *      org.nlogo.api.Context)
+	 */
+	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
-		int length = args[0].getIntValue();
-		boolean value = args[1].getBooleanValue();
-		return new NetLogoBitstring(length, value);
+		NetLogoBitstring bs[] = BitstringExtension.getNetLogoBitstringArgs(args, 0);
+
+		switch(mode) {
+		case ONE:
+			return new Double(bs[0].count1());
+		case ZERO:
+			return new Double(bs[0].count0());
+		default:
+			throw new RuntimeException("PANIC!");
+		}
 	}
 
 	@Override

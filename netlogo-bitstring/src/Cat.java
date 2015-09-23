@@ -7,7 +7,7 @@ import org.nlogo.api.Syntax;
 
 
 /**
- * Make.java, 
+ * Cat.java, 
  *
  * Copyright (C) The James Hutton Institute 2015
  *
@@ -27,23 +27,31 @@ import org.nlogo.api.Syntax;
  */
 
 /**
- * <!-- Make -->
- * 
+ * <!-- Cat -->
+ *
  * @author Gary Polhill
  */
-public class Make extends DefaultReporter {
+public class Cat extends DefaultReporter {
 
 	@Override
 	public Syntax getSyntax() {
-		return Syntax.reporterSyntax(new int[] { Syntax.NumberType(), Syntax.BooleanType() },
-																	Syntax.WildcardType());
+		return Syntax.reporterSyntax(new int[] { Syntax.WildcardType(), Syntax.WildcardType() },
+																	Syntax.NumberType());
 	}
 
+	/** 
+	 * <!-- report -->
+	 *
+	 * @see org.nlogo.api.Reporter#report(org.nlogo.api.Argument[], org.nlogo.api.Context)
+	 */
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
-		int length = args[0].getIntValue();
-		boolean value = args[1].getBooleanValue();
-		return new NetLogoBitstring(length, value);
+		NetLogoBitstring cat[] = BitstringExtension.getNetLogoBitstringArgs(args, 0);
+		for(int i = 1; i < args.length; i++) {
+			NetLogoBitstring arg[] = BitstringExtension.getNetLogoBitstringArgs(args, i);
+			cat[0] = new NetLogoBitstring(cat[0].append(arg[0]));
+		}
+		return cat[0];
 	}
 
 	@Override

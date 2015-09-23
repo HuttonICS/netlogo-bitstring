@@ -5,9 +5,8 @@ import org.nlogo.api.ExtensionException;
 import org.nlogo.api.LogoException;
 import org.nlogo.api.Syntax;
 
-
 /**
- * Make.java, 
+ * AllAny.java, 
  *
  * Copyright (C) The James Hutton Institute 2015
  *
@@ -27,23 +26,46 @@ import org.nlogo.api.Syntax;
  */
 
 /**
- * <!-- Make -->
- * 
+ * <!-- AllAny -->
+ *
  * @author Gary Polhill
  */
-public class Make extends DefaultReporter {
+public class AllAny extends DefaultReporter {
+	protected enum Mode { ALL_ONE, ALL_ZERO, ANY_ONE, ANY_ZERO };
 
-	@Override
-	public Syntax getSyntax() {
-		return Syntax.reporterSyntax(new int[] { Syntax.NumberType(), Syntax.BooleanType() },
-																	Syntax.WildcardType());
+	private final Mode mode;
+
+	public AllAny(Mode mode) {
+		this.mode = mode;
 	}
 
 	@Override
+	public Syntax getSyntax() {
+		return Syntax.reporterSyntax(new int[] { Syntax.WildcardType() }, Syntax.BooleanType());
+	}
+
+	/** 
+	 * <!-- report -->
+	 *
+	 * @see org.nlogo.api.Reporter#report(org.nlogo.api.Argument[], org.nlogo.api.Context)
+	 */
+	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
-		int length = args[0].getIntValue();
-		boolean value = args[1].getBooleanValue();
-		return new NetLogoBitstring(length, value);
+		NetLogoBitstring bs[] = BitstringExtension.getNetLogoBitstringArgs(args, 0);
+
+		switch(mode) {
+		case ALL_ZERO:
+			return new Boolean(bs[0].all0());
+		case ALL_ONE:
+			return new Boolean(bs[0].all1());
+		case ANY_ZERO:
+			return new Boolean(!bs[0].all1());
+		case ANY_ONE:
+			return new Boolean(!bs[0].all0());
+		default:
+			throw new RuntimeException("PANIC!");
+		}
+
 	}
 
 	@Override

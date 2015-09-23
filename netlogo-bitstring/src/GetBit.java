@@ -7,7 +7,7 @@ import org.nlogo.api.Syntax;
 
 
 /**
- * Make.java, 
+ * Get.java, 
  *
  * Copyright (C) The James Hutton Institute 2015
  *
@@ -27,23 +27,66 @@ import org.nlogo.api.Syntax;
  */
 
 /**
- * <!-- Make -->
+ * <!-- GetBit -->
  * 
  * @author Gary Polhill
  */
-public class Make extends DefaultReporter {
+public class GetBit extends DefaultReporter {
 
-	@Override
-	public Syntax getSyntax() {
-		return Syntax.reporterSyntax(new int[] { Syntax.NumberType(), Syntax.BooleanType() },
-																	Syntax.WildcardType());
+	public enum Mode {
+		RANDOM_ACCESS, FIRST, LAST
+	};
+
+	private final Mode mode;
+
+	public GetBit(Mode mode) {
+		this.mode = mode;
 	}
 
 	@Override
+	public Syntax getSyntax() {
+		switch(mode) {
+		case RANDOM_ACCESS:
+			return Syntax.reporterSyntax(new int[] { Syntax.WildcardType(), Syntax.NumberType() },
+																		Syntax.BooleanType());
+		case FIRST:
+		case LAST:
+			return Syntax.reporterSyntax(new int[] { Syntax.WildcardType() }, Syntax.BooleanType());
+		default:
+			throw new RuntimeException("PANIC!");
+		}
+	}
+
+	/**
+	 * <!-- report -->
+	 * 
+	 * @see org.nlogo.api.Reporter#report(org.nlogo.api.Argument[],
+	 *      org.nlogo.api.Context)
+	 */
+	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
-		int length = args[0].getIntValue();
-		boolean value = args[1].getBooleanValue();
-		return new NetLogoBitstring(length, value);
+		NetLogoBitstring bs[] = BitstringExtension.getNetLogoBitstringArgs(args, 0);
+
+		int pos;
+
+		switch(mode) {
+		case RANDOM_ACCESS:
+			pos = args[1].getIntValue();
+			break;
+		case FIRST:
+			pos = 0;
+			break;
+		case LAST:
+			pos = bs[0].size() - 1;
+			break;
+		default:
+			throw new RuntimeException("PANIC!");
+		}
+
+		if(pos < 0 || pos >= bs[0].size()) {
+			throw new ExtensionException("Position " + pos + " is outside the range [0, " + bs[0].size() + "[");
+		}
+		return new Boolean(bs[0].get(pos));
 	}
 
 	@Override

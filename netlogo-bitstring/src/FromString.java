@@ -7,7 +7,7 @@ import org.nlogo.api.Syntax;
 
 
 /**
- * Make.java, 
+ * FromString.java, 
  *
  * Copyright (C) The James Hutton Institute 2015
  *
@@ -27,23 +27,24 @@ import org.nlogo.api.Syntax;
  */
 
 /**
- * <!-- Make -->
+ * <!-- FromString -->
  * 
  * @author Gary Polhill
  */
-public class Make extends DefaultReporter {
+public class FromString extends DefaultReporter {
 
 	@Override
 	public Syntax getSyntax() {
-		return Syntax.reporterSyntax(new int[] { Syntax.NumberType(), Syntax.BooleanType() },
-																	Syntax.WildcardType());
+		return Syntax.reporterSyntax(new int[] { Syntax.StringType() }, Syntax.WildcardType());
 	}
 
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
-		int length = args[0].getIntValue();
-		boolean value = args[1].getBooleanValue();
-		return new NetLogoBitstring(length, value);
+		String str = args[0].getString();
+		if(!Bitstring.is10(str)) {
+			throw new ExtensionException("String \"" + str + "\" contains one or more characters not interpretable as 1 or 0");
+		}
+		return new NetLogoBitstring(str);
 	}
 
 	@Override

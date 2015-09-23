@@ -7,7 +7,7 @@ import org.nlogo.api.Syntax;
 
 
 /**
- * Make.java, 
+ * Contains.java, 
  *
  * Copyright (C) The James Hutton Institute 2015
  *
@@ -27,23 +27,27 @@ import org.nlogo.api.Syntax;
  */
 
 /**
- * <!-- Make -->
+ * <!-- Contains -->
  * 
  * @author Gary Polhill
  */
-public class Make extends DefaultReporter {
+public class Contains extends DefaultReporter {
 
 	@Override
 	public Syntax getSyntax() {
-		return Syntax.reporterSyntax(new int[] { Syntax.NumberType(), Syntax.BooleanType() },
-																	Syntax.WildcardType());
+		return Syntax.reporterSyntax(Syntax.WildcardType(), new int[] { Syntax.WildcardType() }, Syntax.BooleanType(), 2);
 	}
 
+	/**
+	 * <!-- report -->
+	 * 
+	 * @see org.nlogo.api.Reporter#report(org.nlogo.api.Argument[],
+	 *      org.nlogo.api.Context)
+	 */
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
-		int length = args[0].getIntValue();
-		boolean value = args[1].getBooleanValue();
-		return new NetLogoBitstring(length, value);
+		NetLogoBitstring bs[] = BitstringExtension.getNetLogoBitstringArgs(args, 0, 1);
+		return new Boolean(bs[0].contains(bs[1]));
 	}
 
 	@Override

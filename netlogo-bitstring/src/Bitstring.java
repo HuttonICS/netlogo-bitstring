@@ -34,6 +34,8 @@ import java.util.RandomAccess;
  */
 public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 
+	public static final String EMPTY_BITSTRING_STRING = "<empty>";
+
 	private final int length;
 
 	private final List<Integer> bitstring;
@@ -48,9 +50,14 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 	 */
 	public Bitstring(int length) {
 		this.length = length;
-		Integer temp[] = new Integer[(int)Math.ceil((double)length / Integer.SIZE)];
-		Arrays.fill(temp, 0);
-		bitstring = Collections.unmodifiableList(new ArrayList<Integer>(Arrays.asList(temp)));
+		if(length > 0) {
+			Integer temp[] = new Integer[(int)Math.ceil((double)length / Integer.SIZE)];
+			Arrays.fill(temp, 0);
+			bitstring = Collections.unmodifiableList(new ArrayList<Integer>(Arrays.asList(temp)));
+		}
+		else {
+			bitstring = Collections.unmodifiableList(new ArrayList<Integer>());
+		}
 	}
 
 	/**
@@ -66,9 +73,19 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 	 */
 	public Bitstring(int length, boolean set) {
 		this.length = length;
-		Integer temp[] = new Integer[(int)Math.ceil((double)length / Integer.SIZE)];
-		Arrays.fill(temp, set ? 1 : 0);
-		bitstring = Collections.unmodifiableList(new ArrayList<Integer>(Arrays.asList(temp)));
+		if(length > 0) {
+			Integer temp[] = new Integer[(int)Math.ceil((double)length / Integer.SIZE)];
+			Arrays.fill(temp, set ? ~0 : 0);
+			if(set) {
+				int remainder = (temp.length - 1) * Integer.SIZE;
+
+				temp[temp.length - 1] = ~0 >>> (Integer.SIZE - remainder);
+			}
+			bitstring = Collections.unmodifiableList(new ArrayList<Integer>(Arrays.asList(temp)));
+		}
+		else {
+			bitstring = Collections.unmodifiableList(new ArrayList<Integer>());
+		}
 	}
 
 	/**
@@ -91,22 +108,28 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 	 * @param string
 	 */
 	public Bitstring(String string) {
+		if(string.equals(EMPTY_BITSTRING_STRING)) string = "";
 		this.length = string.length();
-		Integer temp[] = new Integer[(int)Math.ceil((double)length / Integer.SIZE)];
-		for(int i = 0; i < length; i++) {
-			int j = bitToArr(i);
-			if(is1(string.charAt(i))) {
-				temp[j] = temp[j] | getBit(i);
+		if(length > 0) {
+			Integer temp[] = new Integer[(int)Math.ceil((double)length / Integer.SIZE)];
+			for(int i = 0; i < length; i++) {
+				int j = bitToArr(i);
+				if(is1(string.charAt(i))) {
+					temp[j] = temp[j] | getBit(i);
+				}
+				else if(is0(string.charAt(i))) {
+					temp[j] = temp[j] & butBit(i);
+				}
+				else {
+					throw new IllegalArgumentException("Cannot initialise bitstring from string \"" + string
+							+ "\" because character at element " + i + " is not interpretable as a boolean");
+				}
 			}
-			else if(is0(string.charAt(i))) {
-				temp[j] = temp[j] & butBit(i);
-			}
-			else {
-				throw new IllegalArgumentException("Cannot initialise bitstring from string \"" + string
-						+ "\" because character at element " + i + " is not interpretable as a boolean");
-			}
+			bitstring = Collections.unmodifiableList(new ArrayList<Integer>(Arrays.asList(temp)));
 		}
-		bitstring = Collections.unmodifiableList(new ArrayList<Integer>(Arrays.asList(temp)));
+		else {
+			bitstring = Collections.unmodifiableList(new ArrayList<Integer>());
+		}
 	}
 
 	/**
@@ -122,18 +145,23 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 	 */
 	public Bitstring(int length, double probability) {
 		this.length = length;
-		Integer temp[] = new Integer[(int)Math.ceil((double)length / Integer.SIZE)];
-		Arrays.fill(temp, 0);
-		for(int i = 0; i < length; i++) {
-			int j = bitToArr(i);
-			if(Math.random() < probability) {
-				temp[j] = temp[j] | getBit(i);
+		if(length > 0) {
+			Integer temp[] = new Integer[(int)Math.ceil((double)length / Integer.SIZE)];
+			Arrays.fill(temp, 0);
+			for(int i = 0; i < length; i++) {
+				int j = bitToArr(i);
+				if(Math.random() < probability) {
+					temp[j] = temp[j] | getBit(i);
+				}
+				else {
+					temp[j] = temp[j] & butBit(i);
+				}
 			}
-			else {
-				temp[j] = temp[j] & butBit(i);
-			}
+			bitstring = Collections.unmodifiableList(new ArrayList<Integer>(Arrays.asList(temp)));
 		}
-		bitstring = Collections.unmodifiableList(new ArrayList<Integer>(Arrays.asList(temp)));
+		else {
+			bitstring = Collections.unmodifiableList(new ArrayList<Integer>());
+		}
 	}
 
 	/**
@@ -152,19 +180,25 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 
 		this.length = list.size();
 
-		Integer temp[] = new Integer[(int)Math.ceil((double)length / Integer.SIZE)];
-		Arrays.fill(temp, 0);
-		for(int i = 0; i < length; i++) {
-			int j = bitToArr(i);
+		if(length > 0) {
+			Integer temp[] = new Integer[(int)Math.ceil((double)length / Integer.SIZE)];
+			Arrays.fill(temp, 0);
+			for(int i = 0; i < length; i++) {
+				int j = bitToArr(i);
 
-			if(list.get(i)) {
-				temp[j] = temp[j] | getBit(i);
+				if(list.get(i)) {
+					temp[j] = temp[j] | getBit(i);
+				}
+				else {
+					temp[j] = temp[j] & butBit(i);
+				}
 			}
-			else {
-				temp[j] = temp[j] & butBit(i);
-			}
+			bitstring = Collections.unmodifiableList(new ArrayList<Integer>(Arrays.asList(temp)));
 		}
-		bitstring = Collections.unmodifiableList(new ArrayList<Integer>(Arrays.asList(temp)));
+		else {
+			bitstring = Collections.unmodifiableList(new ArrayList<Integer>());
+		}
+
 	}
 
 	/**
@@ -274,6 +308,20 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 	}
 
 	/**
+	 * <!-- is10 -->
+	 * 
+	 * @param string
+	 * @return <code>true</code> if all characters in the <code>string</code> are
+	 *         interpretable as a 1 or a 0
+	 */
+	public static boolean is10(CharSequence string) {
+		for(int i = 0; i < string.length(); i++) {
+			if(!(is1(string.charAt(i)) || is0(string.charAt(i)))) return false;
+		}
+		return true;
+	}
+
+	/**
 	 * <!-- get -->
 	 * 
 	 * @param bit
@@ -311,18 +359,46 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		return new Bitstring(length, arr);
 	}
 
+	/**
+	 * <!-- set -->
+	 * 
+	 * @param bit
+	 * @return A Bitstring that is the same as this one but with bit
+	 *         <code>bit</code> definitely set to 1
+	 */
 	public Bitstring set(int bit) {
 		return set(bit, true);
 	}
 
+	/**
+	 * <!-- unset -->
+	 * 
+	 * @param bit
+	 * @return A Bitstring that is the same as this one but with bit
+	 *         <code>bit</code> definitely set to 0
+	 */
 	public Bitstring unset(int bit) {
 		return set(bit, false);
 	}
 
+	/**
+	 * <!-- toggle -->
+	 * 
+	 * @param bit
+	 * @return A Bitstring that is the same as this one but with bit
+	 *         <code>bit</code> set to the opposite of what it is now
+	 */
 	public Bitstring toggle(int bit) {
 		return set(bit, !get(bit));
 	}
 
+	/**
+	 * <!-- jitter -->
+	 * 
+	 * @param prob
+	 * @return A Bitstring that is the same as this one but with each bit
+	 *         {@link #toggle(int)}-ed with probability <code>prob</code>
+	 */
 	public Bitstring jitter(double prob) {
 		double probs[] = new double[length];
 
@@ -331,6 +407,16 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		return jitter(probs);
 	}
 
+	/**
+	 * <!-- jitter -->
+	 * 
+	 * @param probs
+	 *          An array of probabilities, which must have the same length as the
+	 *          number of bits in this bitstring
+	 * @return A Bitstring that is the same as this one but with each bit
+	 *         {@link #toggle(int)}-ed with probability in the corresponding
+	 *         element of <code>probs[]</code>
+	 */
 	public Bitstring jitter(double probs[]) {
 		if(probs.length != length) {
 			throw new IllegalArgumentException("Probability array has a different length (" + probs.length
@@ -348,12 +434,29 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		return new Bitstring(list);
 	}
 
+	/**
+	 * <!-- subbitstring -->
+	 * 
+	 * Return a sub-bitstring of this one, with <code>start</code> as the first
+	 * element to include (starting at 0), and <code>finish</code> as the first
+	 * element not to include. For example, given the bitstring <code>00110</code>
+	 * ,
+	 * subbitstring(2, 3) would be the bitstring <code>11</code>.
+	 * 
+	 * @param start
+	 * @param finish
+	 * @return A Bitstring that is a part of this one's sequence in the range [
+	 *         <code>start</code>, <code>finish</code>[
+	 */
 	public Bitstring subbitstring(int start, int finish) {
 		if(start < 0 || start >= length) {
 			throw new IllegalArgumentException("Start index " + start + " is outside the range [0, " + length + "[");
 		}
 		if(finish <= 0 || finish > length) {
 			throw new IllegalArgumentException("Finish index " + finish + " is outside the range ]0, " + length + "]");
+		}
+		if(finish < start) {
+			throw new IllegalArgumentException("Finish index " + finish + " must be >= start index " + start);
 		}
 
 		ArrayList<Boolean> list = new ArrayList<Boolean>(finish - start);
@@ -363,6 +466,13 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		return new Bitstring(list);
 	}
 
+	/**
+	 * <!-- append -->
+	 * 
+	 * @param other
+	 * @return A bitstring formed of the concatenation of this one with
+	 *         <code>other</code>
+	 */
 	public Bitstring append(Bitstring other) {
 		ArrayList<Boolean> list = new ArrayList<Boolean>(this.length + other.length);
 
@@ -373,7 +483,15 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		return new Bitstring(list);
 	}
 
+	/**
+	 * <!-- not -->
+	 * 
+	 * @return The complement of this bitstring
+	 */
 	public Bitstring not() {
+		if(length == 0) {
+			return clone();
+		}
 		Integer thisarr[] = toIntArray();
 		Integer mask[] = mask();
 
@@ -383,10 +501,19 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		return new Bitstring(length, thisarr);
 	}
 
+	/**
+	 * <!-- and -->
+	 * 
+	 * @param other
+	 * @return The bitwise AND of this bitstring with <code>other</code>
+	 */
 	public Bitstring and(Bitstring other) {
 		if(other.length != this.length) {
 			throw new IllegalArgumentException("Cannot AND bitstrings of different lengths (" + this.length + " and "
 					+ other.length + ")");
+		}
+		if(length == 0) {
+			return clone();
 		}
 		Integer thisarr[] = toIntArray();
 		Integer otherarr[] = other.toIntArray();
@@ -397,10 +524,19 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		return new Bitstring(length, thisarr);
 	}
 
+	/**
+	 * <!-- or -->
+	 * 
+	 * @param other
+	 * @return The bitwise OR of this bitstring with <code>other</code>
+	 */
 	public Bitstring or(Bitstring other) {
 		if(other.length != this.length) {
 			throw new IllegalArgumentException("Cannot OR bitstrings of different lengths (" + this.length + " and "
 					+ other.length + ")");
+		}
+		if(length == 0) {
+			return clone();
 		}
 		Integer thisarr[] = toIntArray();
 		Integer otherarr[] = other.toIntArray();
@@ -411,10 +547,19 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		return new Bitstring(length, thisarr);
 	}
 
+	/**
+	 * <!-- xor -->
+	 * 
+	 * @param other
+	 * @return The bitwise XOR of this bitstring with <code>other</code>
+	 */
 	public Bitstring xor(Bitstring other) {
 		if(other.length != this.length) {
 			throw new IllegalArgumentException("Cannot XOR bitstrings of different lengths (" + this.length + " and "
 					+ other.length + ")");
+		}
+		if(length == 0) {
+			return clone();
 		}
 		Integer thisarr[] = toIntArray();
 		Integer otherarr[] = other.toIntArray();
@@ -426,10 +571,20 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		return new Bitstring(length, thisarr);
 	}
 
+	/**
+	 * <!-- parity -->
+	 * 
+	 * @param other
+	 * @return The complement of the bitwise XOR of this bitstring with
+	 *         <code>other</code>
+	 */
 	public Bitstring parity(Bitstring other) {
 		if(other.length != this.length) {
 			throw new IllegalArgumentException("Cannot PARITY bitstrings of different lengths (" + this.length + " and "
 					+ other.length + ")");
+		}
+		if(length == 0) {
+			return clone();
 		}
 		Integer thisarr[] = toIntArray();
 		Integer otherarr[] = other.toIntArray();
@@ -441,7 +596,16 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		return new Bitstring(length, thisarr);
 	}
 
+	/**
+	 * <!-- mask -->
+	 * 
+	 * @return A mask with 1 where a bit in the integer array is part of the
+	 *         bitstring and 0 elsewhere
+	 */
 	private Integer[] mask() {
+		if(length == 0) {
+			return new Integer[0];
+		}
 		Integer mask[] = new Integer[bitstring.size()];
 
 		for(int i = 0; i < mask.length - 1; i++) {
@@ -454,34 +618,90 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 
 		return mask;
 	}
-	
-	public int match(Bitstring other) {
-		if(this.length != other.length) return -1;
-		return parity(other).count1();
+
+	public Bitstring mutate(double prob) {
+		if(Math.random() < prob) {
+			int bit = (int)Math.floor(Math.random() * length);
+			return mutate(bit);
+		}
+		else {
+			return clone();
+		}
 	}
 	
+	public Bitstring mutate(int bit) {
+		return set(bit, Math.random() < 0.5);
+	}
+
+	public Bitstring[] crossover(Bitstring other, double prob) {
+		if(this.length != other.length) {
+			throw new IllegalArgumentException("Cannot crossover bitstrings of different lengths (" + length + " and "
+					+ other.length + ")");
+		}
+		if(Math.random() < prob) {
+			int bit = (int)Math.floor(Math.random() * (length + 1));
+			return crossover(other, bit);
+		}
+		else {
+			return new Bitstring[] { clone(), other.clone() };
+		}
+	}
+	
+	public Bitstring[] crossover(Bitstring other, int bit) {
+		if(this.length != other.length) {
+			throw new IllegalArgumentException("Cannot crossover bitstrings of different lengths (" + length + " and "
+					+ other.length + ")");
+		}
+		return new Bitstring[] {
+														this.subbitstring(0, bit).append(other.subbitstring(bit, length)),
+														other.subbitstring(0, bit).append(this.subbitstring(bit, length))
+		};		
+	}
+
+	/**
+	 * <!-- match -->
+	 * 
+	 * @param other
+	 * @return The number of bits in this bitstring and <code>other</code> that
+	 *         have the same value
+	 */
+	public int match(Bitstring other) {
+		if(this.length != other.length) return -1;
+		if(length == 0) return 0;
+		return parity(other).count1();
+	}
+
+	/**
+	 * <!-- count1 -->
+	 * 
+	 * @return The number of <code>1</code>s in the bitstring
+	 */
 	public int count1() {
 		int n = 0;
-		
+
 		for(int i = 0; i < length; i++) {
 			if(get(i)) {
 				n++;
 			}
 		}
-		
+
 		return n;
 	}
-	
 
+	/**
+	 * <!-- count0 -->
+	 * 
+	 * @return The number of <code>0</code>s in the bitstring
+	 */
 	public int count0() {
 		int n = 0;
-		
+
 		for(int i = 0; i < length; i++) {
 			if(!get(i)) {
 				n++;
 			}
 		}
-		
+
 		return n;
 	}
 
@@ -498,10 +718,19 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 	/**
 	 * <!-- isEmpty -->
 	 * 
-	 * @return <code>true</code> if all bits are <code>0</code>
+	 * @return <code>true</code> if the length is 0
 	 */
 	@Override
 	public boolean isEmpty() {
+		return length == 0;
+	}
+
+	/**
+	 * <!-- all0 -->
+	 * 
+	 * @return <code>true</code> if all bits are <code>1</code>
+	 */
+	public boolean all0() {
 		for(Integer i: bitstring) {
 			if(i > 0) return false;
 		}
@@ -509,11 +738,11 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 	}
 
 	/**
-	 * <!-- isFull -->
+	 * <!-- all1 -->
 	 * 
 	 * @return <code>true</code> if all bits are <code>1</code>
 	 */
-	public boolean isFull() {
+	public boolean all1() {
 		for(int i = 0; i < length; i++) {
 			if(!get(i)) return false;
 		}
@@ -570,8 +799,8 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 	 * @return <code>true</code> if the bitstring contains a bit <code>o</code>
 	 */
 	public boolean contains(Boolean o) {
-		if(o) return !isEmpty();
-		else return !isFull();
+		if(o) return !all0();
+		else return !all1();
 	}
 
 	/**
@@ -721,6 +950,7 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 	 */
 	@Override
 	public String toString() {
+		if(length == 0) return EMPTY_BITSTRING_STRING;
 		StringBuffer buff = new StringBuffer();
 		for(int i = 0; i < length; i++) {
 			buff.append(get(i) ? "1" : "0");
@@ -781,5 +1011,7 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		System.out.println("    B = " + b);
 		System.out.println("A p B = " + a.parity(b));
 		System.out.println("match = " + a.match(b));
+		Bitstring empty = new Bitstring(0);
+		System.out.println("empty clone " + empty.clone());
 	}
 }

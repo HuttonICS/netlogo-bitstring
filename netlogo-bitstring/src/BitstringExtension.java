@@ -1,5 +1,6 @@
 import java.util.List;
 
+import org.nlogo.api.Argument;
 import org.nlogo.api.CompilerException;
 import org.nlogo.api.DefaultClassManager;
 import org.nlogo.api.Dump;
@@ -7,6 +8,7 @@ import org.nlogo.api.ExtensionException;
 import org.nlogo.api.ExtensionManager;
 import org.nlogo.api.ExtensionObject;
 import org.nlogo.api.ImportErrorHandler;
+import org.nlogo.api.LogoException;
 import org.nlogo.api.PrimitiveManager;
 
 
@@ -45,6 +47,42 @@ public class BitstringExtension extends DefaultClassManager {
 	@Override
 	public void load(PrimitiveManager manager) throws ExtensionException {
 		manager.addPrimitive("make", new Make());
+		manager.addPrimitive("from-list", new FromList());
+		manager.addPrimitive("random", new Random());
+		manager.addPrimitive("from-string", new FromString());
+
+		manager.addPrimitive("get?", new GetBit(GetBit.Mode.RANDOM_ACCESS));
+		manager.addPrimitive("first?", new GetBit(GetBit.Mode.FIRST));
+		manager.addPrimitive("last?", new GetBit(GetBit.Mode.LAST));
+		manager.addPrimitive("set", new SetBit());
+		manager.addPrimitive("fput", new FLPut(FLPut.Mode.FIRST));
+		manager.addPrimitive("lput", new FLPut(FLPut.Mode.LAST));
+
+		manager.addPrimitive("not", new BitWise(BitWise.Op.NOT));
+		manager.addPrimitive("and", new BitWise(BitWise.Op.AND));
+		manager.addPrimitive("or", new BitWise(BitWise.Op.OR));
+		manager.addPrimitive("xor", new BitWise(BitWise.Op.XOR));
+		manager.addPrimitive("parity", new BitWise(BitWise.Op.PARITY));
+
+		manager.addPrimitive("match", new Match());
+		manager.addPrimitive("contains?", new Contains());
+		manager.addPrimitive("cat", new Cat());
+		manager.addPrimitive("sub", new SubBitstring(SubBitstring.Mode.RANDOM_ACCESS));
+		manager.addPrimitive("but-first", new SubBitstring(SubBitstring.Mode.BUT_FIRST));
+		manager.addPrimitive("but-last", new SubBitstring(SubBitstring.Mode.BUT_LAST));
+		manager.addPrimitive("count0", new Count(Count.Mode.ZERO));
+		manager.addPrimitive("count1", new Count(Count.Mode.ONE));
+		manager.addPrimitive("all0?", new AllAny(AllAny.Mode.ALL_ZERO));
+		manager.addPrimitive("any0?", new AllAny(AllAny.Mode.ANY_ZERO));
+		manager.addPrimitive("all1?", new AllAny(AllAny.Mode.ALL_ONE));
+		manager.addPrimitive("any1?", new AllAny(AllAny.Mode.ANY_ONE));
+		manager.addPrimitive("empty?", new Empty());
+		manager.addPrimitive("toggle", new Toggle());
+		manager.addPrimitive("jitter", new Jitter());
+		manager.addPrimitive("crossover", new Crossover());
+		manager.addPrimitive("mutate", new Mutate());
+
+		manager.addPrimitive("to-list", new ToList());
 	}
 
 	@Override
@@ -80,5 +118,26 @@ public class BitstringExtension extends DefaultClassManager {
 	public ExtensionObject readExtensionObject(ExtensionManager manager, String typeName, String value)
 			throws ExtensionException, CompilerException {
 		return NetLogoBitstring.manifest(value);
+	}
+
+	protected static NetLogoBitstring[] getNetLogoBitstringArgs(Argument args[], int... pos) throws ExtensionException,
+			LogoException {
+		NetLogoBitstring bs[] = new NetLogoBitstring[pos.length];
+
+		for(int i = 0; i < pos.length; i++) {
+			if(pos[i] >= args.length) {
+				throw new ExtensionException("Command expects a " + (pos[i] + 1) + " argument, but only has " + args.length);
+			}
+			Object obj = args[pos[i]].get();
+			if(obj instanceof NetLogoBitstring) {
+				bs[i] = (NetLogoBitstring)args[pos[i]];
+			}
+			else {
+				throw new ExtensionException("Command expents a bitstring as argument " + (pos[i] + 1) + " but got a "
+						+ obj.getClass().getSimpleName());
+			}
+		}
+
+		return bs;
 	}
 }

@@ -7,7 +7,7 @@ import org.nlogo.api.Syntax;
 
 
 /**
- * Make.java, 
+ * Match.java, 
  *
  * Copyright (C) The James Hutton Institute 2015
  *
@@ -27,23 +27,34 @@ import org.nlogo.api.Syntax;
  */
 
 /**
- * <!-- Make -->
+ * <!-- Match -->
  * 
  * @author Gary Polhill
  */
-public class Make extends DefaultReporter {
+public class Match extends DefaultReporter {
 
 	@Override
 	public Syntax getSyntax() {
-		return Syntax.reporterSyntax(new int[] { Syntax.NumberType(), Syntax.BooleanType() },
-																	Syntax.WildcardType());
+		return Syntax.reporterSyntax(new int[] { Syntax.WildcardType(), Syntax.WildcardType() },
+																	Syntax.NumberType());
 	}
 
+	/**
+	 * <!-- report -->
+	 * 
+	 * @see org.nlogo.api.Reporter#report(org.nlogo.api.Argument[],
+	 *      org.nlogo.api.Context)
+	 */
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
-		int length = args[0].getIntValue();
-		boolean value = args[1].getBooleanValue();
-		return new NetLogoBitstring(length, value);
+		NetLogoBitstring bs[] = BitstringExtension.getNetLogoBitstringArgs(args, 0, 1);
+
+		if(bs[0].size() != bs[1].size()) {
+			throw new ExtensionException("Cannot match bitstrings of different sizes (" + bs[0].size() + " and "
+					+ bs[1].size() + ")");
+		}
+
+		return new Double(bs[0].match(bs[1]));
 	}
 
 	@Override

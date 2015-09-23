@@ -7,7 +7,7 @@ import org.nlogo.api.Syntax;
 
 
 /**
- * Make.java, 
+ * Mutate.java, 
  *
  * Copyright (C) The James Hutton Institute 2015
  *
@@ -27,23 +27,29 @@ import org.nlogo.api.Syntax;
  */
 
 /**
- * <!-- Make -->
+ * <!-- Mutate -->
  * 
  * @author Gary Polhill
  */
-public class Make extends DefaultReporter {
+public class Mutate extends DefaultReporter {
 
 	@Override
 	public Syntax getSyntax() {
-		return Syntax.reporterSyntax(new int[] { Syntax.NumberType(), Syntax.BooleanType() },
+		return Syntax.reporterSyntax(new int[] { Syntax.WildcardType(), Syntax.NumberType(), },
 																	Syntax.WildcardType());
 	}
 
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
-		int length = args[0].getIntValue();
-		boolean value = args[1].getBooleanValue();
-		return new NetLogoBitstring(length, value);
+		NetLogoBitstring bs[] = BitstringExtension.getNetLogoBitstringArgs(args, 0);
+
+		int bit = args[1].getIntValue();
+
+		if(bit < 0 || bit >= bs[0].size()) {
+			throw new ExtensionException("Bit to mutate (" + bit + ") outside range [0, " + bs[0].size() + "[");
+		}
+
+		return new NetLogoBitstring(bs[0].mutate(bit));
 	}
 
 	@Override

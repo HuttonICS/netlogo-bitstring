@@ -7,7 +7,7 @@ import org.nlogo.api.Syntax;
 
 
 /**
- * Make.java, 
+ * Random.java, 
  *
  * Copyright (C) The James Hutton Institute 2015
  *
@@ -27,23 +27,22 @@ import org.nlogo.api.Syntax;
  */
 
 /**
- * <!-- Make -->
- * 
+ * <!-- Random -->
+ *
  * @author Gary Polhill
  */
-public class Make extends DefaultReporter {
+public class Random extends DefaultReporter {
 
 	@Override
 	public Syntax getSyntax() {
-		return Syntax.reporterSyntax(new int[] { Syntax.NumberType(), Syntax.BooleanType() },
-																	Syntax.WildcardType());
+		return Syntax.reporterSyntax(new int[] { Syntax.NumberType(), Syntax.NumberType() }, Syntax.WildcardType());
 	}
 
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
 		int length = args[0].getIntValue();
-		boolean value = args[1].getBooleanValue();
-		return new NetLogoBitstring(length, value);
+		double prob = args[0].getDoubleValue();
+		return new NetLogoBitstring(length, prob);
 	}
 
 	@Override

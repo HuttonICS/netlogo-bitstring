@@ -7,7 +7,7 @@ import org.nlogo.api.Syntax;
 
 
 /**
- * Make.java, 
+ * Jitter.java, 
  *
  * Copyright (C) The James Hutton Institute 2015
  *
@@ -27,23 +27,30 @@ import org.nlogo.api.Syntax;
  */
 
 /**
- * <!-- Make -->
+ * <!-- Jitter -->
  * 
  * @author Gary Polhill
  */
-public class Make extends DefaultReporter {
+public class Jitter extends DefaultReporter {
 
 	@Override
 	public Syntax getSyntax() {
-		return Syntax.reporterSyntax(new int[] { Syntax.NumberType(), Syntax.BooleanType() },
+		return Syntax.reporterSyntax(	new int[] { Syntax.WildcardType(), Syntax.RepeatableType() | Syntax.NumberType() },
 																	Syntax.WildcardType());
 	}
 
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
-		int length = args[0].getIntValue();
-		boolean value = args[1].getBooleanValue();
-		return new NetLogoBitstring(length, value);
+		NetLogoBitstring bs[] = BitstringExtension.getNetLogoBitstringArgs(args, 0);
+		
+		double probs[] = new double[bs[0].size()];
+		int j = 1;
+		for(int i = 0; i < probs.length; i++) {
+			probs[i] = args[j].getDoubleValue();
+			j++;
+			if(j >= args.length) j = 1;
+		}
+		return new NetLogoBitstring(bs[0].jitter(probs));
 	}
 
 	@Override

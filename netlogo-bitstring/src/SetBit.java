@@ -7,7 +7,7 @@ import org.nlogo.api.Syntax;
 
 
 /**
- * Make.java, 
+ * SetBit.java, 
  *
  * Copyright (C) The James Hutton Institute 2015
  *
@@ -27,23 +27,31 @@ import org.nlogo.api.Syntax;
  */
 
 /**
- * <!-- Make -->
+ * <!-- SetBit -->
  * 
  * @author Gary Polhill
  */
-public class Make extends DefaultReporter {
+public class SetBit extends DefaultReporter {
 
 	@Override
 	public Syntax getSyntax() {
-		return Syntax.reporterSyntax(new int[] { Syntax.NumberType(), Syntax.BooleanType() },
-																	Syntax.WildcardType());
+		return Syntax.reporterSyntax(new int[] { Syntax.WildcardType(), Syntax.NumberType(),
+																						Syntax.BooleanType() }, Syntax.WildcardType());
 	}
 
+	/**
+	 * <!-- report -->
+	 * 
+	 * @see org.nlogo.api.Reporter#report(org.nlogo.api.Argument[],
+	 *      org.nlogo.api.Context)
+	 */
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
-		int length = args[0].getIntValue();
-		boolean value = args[1].getBooleanValue();
-		return new NetLogoBitstring(length, value);
+		NetLogoBitstring bs[] = BitstringExtension.getNetLogoBitstringArgs(args, 0);
+		int pos = args[1].getIntValue();
+		boolean value = args[2].getBooleanValue();
+		
+		return new NetLogoBitstring(bs[0].set(pos, value));
 	}
 
 	@Override
