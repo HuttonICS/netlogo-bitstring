@@ -34,7 +34,19 @@ import org.nlogo.api.Syntax;
 public class BitWise extends DefaultReporter {
 
 	protected enum Op {
-		NOT, AND, OR, XOR, PARITY
+		NOT, AND, OR, XOR, PARITY, RSH, GRAY, INVGRAY;
+
+		public boolean unary() {
+			switch(this) {
+			case NOT:
+			case RSH:
+			case GRAY:
+			case INVGRAY:
+				return true;
+			default:
+				return false;
+			}
+		}
 	};
 
 	private final Op op;
@@ -45,17 +57,12 @@ public class BitWise extends DefaultReporter {
 
 	@Override
 	public Syntax getSyntax() {
-		switch(op) {
-		case NOT:
+		if(op.unary()) {
 			return Syntax.reporterSyntax(new int[] { Syntax.WildcardType() }, Syntax.WildcardType());
-		case AND:
-		case OR:
-		case XOR:
-		case PARITY:
+		}
+		else {
 			return Syntax
 					.reporterSyntax(Syntax.WildcardType(), new int[] { Syntax.WildcardType() }, Syntax.WildcardType(), 1);
-		default:
-			throw new RuntimeException("PANIC!");
 		}
 	}
 
@@ -67,9 +74,20 @@ public class BitWise extends DefaultReporter {
 	 */
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
-		if(op == Op.NOT) {
+		if(op.unary()) {
 			NetLogoBitstring bs[] = BitstringExtension.getNetLogoBitstringArgs(args, 0);
-			return new NetLogoBitstring(bs[0].not());
+			switch(op) {
+			case NOT:
+				return new NetLogoBitstring(bs[0].not());
+			case RSH:
+				return new NetLogoBitstring(bs[0].rightShift());
+			case GRAY:
+				return new NetLogoBitstring(bs[0].grayCode());
+			case INVGRAY:
+				return new NetLogoBitstring(bs[0].inverseGrayCode());
+			default:
+				throw new RuntimeException("PANIC!");
+			}
 		}
 		else {
 			NetLogoBitstring bs[] = BitstringExtension.getNetLogoBitstringArgs(args, 0, 1);

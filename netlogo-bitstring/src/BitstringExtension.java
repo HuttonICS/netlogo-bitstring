@@ -63,6 +63,9 @@ public class BitstringExtension extends DefaultClassManager {
 		manager.addPrimitive("or", new BitWise(BitWise.Op.OR));
 		manager.addPrimitive("xor", new BitWise(BitWise.Op.XOR));
 		manager.addPrimitive("parity", new BitWise(BitWise.Op.PARITY));
+		manager.addPrimitive("right-shift", new BitWise(BitWise.Op.RSH));
+		manager.addPrimitive("gray-code", new BitWise(BitWise.Op.GRAY));
+		manager.addPrimitive("inverse-gray-code", new BitWise(BitWise.Op.INVGRAY));
 
 		manager.addPrimitive("match", new Match());
 		manager.addPrimitive("contains?", new Contains());

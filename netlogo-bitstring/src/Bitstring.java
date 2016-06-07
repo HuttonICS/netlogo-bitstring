@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.RandomAccess;
 
-
 /**
  * Bitstring.java, 
  *
@@ -258,7 +257,7 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 	 *         <code>bit</code> is found in
 	 */
 	private static int bitInArr(int bit) {
-		return bit - bitToArr(bit);
+		return Integer.SIZE - (bit - (bitToArr(bit) * Integer.SIZE)) - 1;
 	}
 
 	/**
@@ -337,6 +336,21 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 	}
 
 	/**
+	 * <!-- get -->
+	 * 
+	 * @param bit
+	 * @param bitstring
+	 * @param length
+	 * @return 1 if the bit is set in the Integer array, 0 if not
+	 */
+	private static int get(int bit, Integer[] bitstring, int length) {
+		if(bit < 0 || bit >= length) {
+			throw new IllegalArgumentException("Bit " + bit + " is outside the range [0, " + length + "[");
+		}
+		return (bitstring[bitToArr(bit)] & getBit(bit)) == 0 ? 0 : 1;
+	}
+
+	/**
 	 * <!-- set -->
 	 * 
 	 * @param bit
@@ -359,6 +373,31 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 
 		return new Bitstring(length, arr);
 	}
+
+	/**
+	 * <!-- set -->
+	 * 
+	 * @param bit
+	 * @param bitstring
+	 * @param length
+	 * @param value
+	 * @return A value to set the <code>bitToArr(bit)</code><sup>th</sup> element
+	 *         of <code>bitstring</code> to as a result of setting the
+	 *         <code>bit</code><sup>th</sup> bit of the bitstring to
+	 *         <code>value</code>
+	 */
+	private static int set(int bit, Integer[] bitstring, int length, int value) {
+		if(bit < 0 || bit >= length) {
+			throw new IllegalArgumentException("Bit " + bit + " is outside the range [0, " + length + "[");
+		}
+		if(value == 1) {
+			return bitstring[bitToArr(bit)] | getBit(bit);
+		}
+		else {
+			return bitstring[bitToArr(bit)] & butBit(bit);
+		}
+	}
+
 
 	/**
 	 * <!-- set -->
@@ -423,6 +462,9 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 			throw new IllegalArgumentException("Probability array has a different length (" + probs.length
 					+ ") from  that of the bitstring (" + length + ")");
 		}
+		if(length == 0) {
+			return clone();
+		}
 		ArrayList<Boolean> list = new ArrayList<Boolean>(length);
 		for(int i = 0; i < length; i++) {
 			if(Math.random() < probs[i]) {
@@ -475,6 +517,10 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 	 *         <code>other</code>
 	 */
 	public Bitstring append(Bitstring other) {
+		if(length == 0 && other.length == 0) {
+			return clone();
+		}
+
 		ArrayList<Boolean> list = new ArrayList<Boolean>(this.length + other.length);
 
 		for(int i = 0; i < this.length + other.length; i++) {
@@ -613,14 +659,24 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 			mask[i] = ~0;
 		}
 
-		int remainder = (mask.length - 1) * Integer.SIZE;
+		int remainder = length - ((mask.length - 1) * Integer.SIZE);
 
-		mask[mask.length - 1] = ~0 >>> (Integer.SIZE - remainder);
-
+		mask[mask.length - 1] = (~0 << (Integer.SIZE - remainder));
+		
 		return mask;
 	}
 
+	/**
+	 * <!-- mutate -->
+	 * 
+	 * @param prob
+	 * @return A new <code>Bitstring</code> with a randomly selected bit mutated
+	 *         from this one with probability <code>prob</code>
+	 */
 	public Bitstring mutate(double prob) {
+		if(length == 0) {
+			return clone();
+		}
 		if(Math.random() < prob) {
 			int bit = (int)Math.floor(Math.random() * length);
 			return mutate(bit);
@@ -629,15 +685,36 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 			return clone();
 		}
 	}
-	
+
+	/**
+	 * <!-- mutate -->
+	 * 
+	 * @param bit
+	 * @return A new <code>BitString</code> with the specified bit set to a random
+	 *         value
+	 */
 	public Bitstring mutate(int bit) {
+		if(length == 0) {
+			return clone();
+		}
 		return set(bit, Math.random() < 0.5);
 	}
 
+	/**
+	 * <!-- crossover -->
+	 * 
+	 * @param other
+	 * @param prob
+	 * @return Two <code>Bitstring</code>s, the result of a crossover operator
+	 *         applied with the specified probability
+	 */
 	public Bitstring[] crossover(Bitstring other, double prob) {
 		if(this.length != other.length) {
 			throw new IllegalArgumentException("Cannot crossover bitstrings of different lengths (" + length + " and "
 					+ other.length + ")");
+		}
+		if(length == 0) {
+			return new Bitstring[] { clone(), clone() };
 		}
 		if(Math.random() < prob) {
 			int bit = (int)Math.floor(Math.random() * (length + 1));
@@ -647,16 +724,93 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 			return new Bitstring[] { clone(), other.clone() };
 		}
 	}
-	
+
+	/**
+	 * <!-- crossover -->
+	 * 
+	 * @param other
+	 * @param bit
+	 * @return Two <code>Bitstring</code>s, the result of a crossover operator
+	 *         applied at the specified point.
+	 */
 	public Bitstring[] crossover(Bitstring other, int bit) {
 		if(this.length != other.length) {
 			throw new IllegalArgumentException("Cannot crossover bitstrings of different lengths (" + length + " and "
 					+ other.length + ")");
 		}
+		if(length == 0) {
+			return new Bitstring[] { clone(), clone() };
+		}
 		return new Bitstring[] {
 														this.subbitstring(0, bit).append(other.subbitstring(bit, length)),
 														other.subbitstring(0, bit).append(this.subbitstring(bit, length))
-		};		
+		};
+	}
+
+	/**
+	 * <!-- grayCode -->
+	 *
+	 * @return Gray coding of the bitstring
+	 */
+	public Bitstring grayCode() {
+		if(length == 0) {
+			return clone();
+		}
+		return xor(rightShift());
+	}
+
+	/**
+	 * <!-- inverseGrayCode -->
+	 *
+	 * @return Inverse Gray coding of the bitstring
+	 */
+	public Bitstring inverseGrayCode() {
+		if(length == 0) {
+			return clone();
+		}
+
+		Integer thisarr[] = toIntArray();
+		Integer result[] = new Integer[thisarr.length];
+		Arrays.fill(result, 0);
+
+		result[0] = getBit(0) & thisarr[0];
+
+		for(int i = 1; i < length; i++) {
+			int j = bitToArr(i);
+
+			result[j] = set(i, result, length, get(i - 1, result, length) ^ get(i, thisarr, length));
+		}
+		return new Bitstring(length, result);
+	}
+
+	/**
+	 * <!-- rightShift -->
+	 *
+	 * @return Right shift of the bitstring
+	 */
+	public Bitstring rightShift() {
+		if(length == 0) {
+			return clone();
+		}
+
+		Integer thisarr[] = toIntArray();
+		Integer mask[] = mask();
+
+		int prev = 0;
+		int msb = ~((~0) >>> 1);
+		int lsb = 1;
+		
+		for(int i = 0; i < thisarr.length; i++) {
+			int next = thisarr[i] & lsb;
+			thisarr[i] >>>= 1;
+			if(prev != 0) {
+				thisarr[i] |= msb;
+			}
+			prev = next;
+			thisarr[i] &= mask[i];
+		}
+
+		return new Bitstring(length, thisarr);
 	}
 
 	/**
@@ -992,7 +1146,7 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		}
 
 		for(int i = 0; i < bitstring.size(); i++) {
-			if(this.bitstring.get(i) != other.bitstring.get(i)) {
+			if(!this.bitstring.get(i).equals(other.bitstring.get(i))) {
 				return false;
 			}
 		}
@@ -1006,12 +1160,39 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		System.out.println("complement of 0 >>> 0 = " + Integer.toHexString(~0 >>> 0));
 		System.out.println("complement of 0 >>> 4 = " + Integer.toHexString(~0 >>> 4));
 		System.out.println("complement of 0 >> 4 = " + Integer.toHexString(~0 >> 4));
+		for(int i = 0; i < 43; i++) {
+			System.out.println("i = " + i + "; bitToArr(i) = " + bitToArr(i) + "; bitInArr(i) = " + bitInArr(i) + "; getBit(i) = " + Integer.toHexString(getBit(i)));
+		}
 		Bitstring a = new Bitstring(43, 0.3);
 		Bitstring b = new Bitstring(43, 0.7);
 		System.out.println("    A = " + a);
 		System.out.println("    B = " + b);
 		System.out.println("A p B = " + a.parity(b));
 		System.out.println("match = " + a.match(b));
+
+		System.out.println("              A = " + a);
+		System.out.println("          rsh A = " + a.rightShift());
+		System.out.println("         gray A = " + a.grayCode());
+		System.out.println("     inv gray A = " + a.inverseGrayCode());
+		System.out.println("inv gray gray A = " + a.grayCode().inverseGrayCode());
+		
+		System.out.println("Trying invgray(gray(A)) == A for a large number of random bitstrings");
+		
+		for(int i = 1; i <= 1000000; i++) {
+			Bitstring c = new Bitstring(10 + (int)Math.rint(Math.random() * 500), Math.random());
+			Bitstring d = c.grayCode().inverseGrayCode();
+			
+			if(!c.equals(d)) {
+				System.out.println("     C" + i + " = " + c);
+				System.out.println(" rsh C" + i + " = " + c.rightShift());
+				System.out.println("gray C" + i + " = " + c.grayCode());
+				System.out.println("     D" + i + " = " + d);
+			}
+			if(i % 100000 == 0) {
+				System.out.println("Now tried " + i + " random bitstrings");
+			}
+		}
+
 		Bitstring empty = new Bitstring(0);
 		System.out.println("empty clone " + empty.clone());
 		Bitstring string = new Bitstring("10101010101");
