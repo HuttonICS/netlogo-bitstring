@@ -3,7 +3,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.nlogo.api.ExtensionException;
-import org.nlogo.api.ExtensionObject;
+import org.nlogo.core.ExtensionObject;
 
 
 public class NetLogoBitstring extends Bitstring implements ExtensionObject {

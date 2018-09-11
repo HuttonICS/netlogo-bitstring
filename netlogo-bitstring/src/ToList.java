@@ -1,10 +1,11 @@
 import org.nlogo.api.Argument;
 import org.nlogo.api.Context;
-import org.nlogo.api.DefaultReporter;
+import org.nlogo.api.Reporter;
 import org.nlogo.api.ExtensionException;
 import org.nlogo.api.LogoException;
-import org.nlogo.api.LogoList;
-import org.nlogo.api.Syntax;
+import org.nlogo.core.LogoList;
+import org.nlogo.core.Syntax;
+import org.nlogo.core.SyntaxJ;
 
 
 /**
@@ -32,11 +33,11 @@ import org.nlogo.api.Syntax;
  * 
  * @author Gary Polhill
  */
-public class ToList extends DefaultReporter {
+public class ToList implements Reporter {
 
 	@Override
 	public Syntax getSyntax() {
-		return Syntax.reporterSyntax(new int[] { Syntax.WildcardType() },
+		return SyntaxJ.reporterSyntax(new int[] { Syntax.WildcardType() },
 																	Syntax.ListType());
 	}
 
@@ -52,9 +53,5 @@ public class ToList extends DefaultReporter {
 		return LogoList.fromJava(bs[0].asList());
 	}
 
-	@Override
-	public String getAgentClassString() {
-		return "OTPL";
-	}
 
 }

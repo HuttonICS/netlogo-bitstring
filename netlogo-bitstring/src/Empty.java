@@ -1,9 +1,10 @@
 import org.nlogo.api.Argument;
 import org.nlogo.api.Context;
-import org.nlogo.api.DefaultReporter;
+import org.nlogo.api.Reporter;
 import org.nlogo.api.ExtensionException;
 import org.nlogo.api.LogoException;
-import org.nlogo.api.Syntax;
+import org.nlogo.core.Syntax;
+import org.nlogo.core.SyntaxJ;
 
 
 /**
@@ -31,22 +32,17 @@ import org.nlogo.api.Syntax;
  *
  * @author Gary Polhill
  */
-public class Empty extends DefaultReporter {
+public class Empty implements Reporter {
 
 	@Override
 	public Syntax getSyntax() {
-		return Syntax.reporterSyntax(new int[] { Syntax.WildcardType() }, Syntax.BooleanType());
+		return SyntaxJ.reporterSyntax(new int[] { Syntax.WildcardType() }, Syntax.BooleanType());
 	}
 
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
 		NetLogoBitstring bs[] = BitstringExtension.getNetLogoBitstringArgs(args, 0);
 		return new Boolean(bs[0].isEmpty());
-	}
-
-	@Override
-	public String getAgentClassString() {
-		return "OTPL";
 	}
 
 }

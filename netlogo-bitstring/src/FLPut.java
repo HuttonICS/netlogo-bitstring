@@ -3,10 +3,11 @@ import java.util.Collections;
 
 import org.nlogo.api.Argument;
 import org.nlogo.api.Context;
-import org.nlogo.api.DefaultReporter;
+import org.nlogo.api.Reporter;
 import org.nlogo.api.ExtensionException;
 import org.nlogo.api.LogoException;
-import org.nlogo.api.Syntax;
+import org.nlogo.core.Syntax;
+import org.nlogo.core.SyntaxJ;
 
 /**
  * FLPut.java, 
@@ -33,7 +34,7 @@ import org.nlogo.api.Syntax;
  * 
  * @author Gary Polhill
  */
-public class FLPut extends DefaultReporter {
+public class FLPut implements Reporter {
 
 	protected enum Mode {
 		FIRST, LAST
@@ -50,7 +51,7 @@ public class FLPut extends DefaultReporter {
 		switch(mode) {
 		case FIRST:
 		case LAST:
-			return Syntax.reporterSyntax(new int[] { Syntax.WildcardType(), Syntax.BooleanType() }, Syntax.WildcardType());
+			return SyntaxJ.reporterSyntax(new int[] { Syntax.WildcardType(), Syntax.BooleanType() }, Syntax.WildcardType());
 		default:
 			throw new RuntimeException("PANIC!");
 		}
@@ -82,11 +83,6 @@ public class FLPut extends DefaultReporter {
 		}
 
 		return new NetLogoBitstring(list);
-	}
-
-	@Override
-	public String getAgentClassString() {
-		return "OTPL";
 	}
 
 }

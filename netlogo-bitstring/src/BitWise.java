@@ -1,9 +1,10 @@
 import org.nlogo.api.Argument;
 import org.nlogo.api.Context;
-import org.nlogo.api.DefaultReporter;
+import org.nlogo.api.Reporter;
 import org.nlogo.api.ExtensionException;
 import org.nlogo.api.LogoException;
-import org.nlogo.api.Syntax;
+import org.nlogo.core.Syntax;
+import org.nlogo.core.SyntaxJ;
 
 
 /**
@@ -31,7 +32,7 @@ import org.nlogo.api.Syntax;
  * 
  * @author Gary Polhill
  */
-public class BitWise extends DefaultReporter {
+public class BitWise implements Reporter {
 
 	protected enum Op {
 		NOT, AND, OR, XOR, PARITY, RSH, GRAY, INVGRAY;
@@ -58,10 +59,10 @@ public class BitWise extends DefaultReporter {
 	@Override
 	public Syntax getSyntax() {
 		if(op.unary()) {
-			return Syntax.reporterSyntax(new int[] { Syntax.WildcardType() }, Syntax.WildcardType());
+			return SyntaxJ.reporterSyntax(new int[] { Syntax.WildcardType() }, Syntax.WildcardType());
 		}
 		else {
-			return Syntax
+			return SyntaxJ
 					.reporterSyntax(Syntax.WildcardType(), new int[] { Syntax.WildcardType() }, Syntax.WildcardType(), 1);
 		}
 	}
@@ -104,11 +105,6 @@ public class BitWise extends DefaultReporter {
 				throw new RuntimeException("PANIC!");
 			}
 		}
-	}
-
-	@Override
-	public String getAgentClassString() {
-		return "OTPL";
 	}
 
 }
