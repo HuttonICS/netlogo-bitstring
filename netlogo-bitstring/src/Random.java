@@ -42,7 +42,7 @@ public class Random implements Reporter {
 	@Override
 	public Object report(Argument[] args, Context context) throws ExtensionException, LogoException {
 		int length = args[0].getIntValue();
-		double prob = args[0].getDoubleValue();
+		double prob = args[1].getDoubleValue();
 		return new NetLogoBitstring(length, prob);
 	}
 

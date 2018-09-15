@@ -468,10 +468,10 @@ public class Bitstring implements Collection<Boolean>, RandomAccess, Cloneable {
 		ArrayList<Boolean> list = new ArrayList<Boolean>(length);
 		for(int i = 0; i < length; i++) {
 			if(Math.random() < probs[i]) {
-				list.add(i, get(i));
+				list.add(i, !get(i));
 			}
 			else {
-				list.add(i, !get(i));
+				list.add(i, get(i));
 			}
 		}
 		return new Bitstring(list);
