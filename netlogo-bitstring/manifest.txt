@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Extension-Name: bitstring
 Class-Manager: BitstringExtension
-NetLogo-Extension-API-Version: 6.0
+NetLogo-Extension-API-Version: 6.1.0
