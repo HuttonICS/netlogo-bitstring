@@ -1,15 +1,15 @@
 import java.util.List;
 
 import org.nlogo.api.Argument;
-import org.nlogo.api.CompilerException;
 import org.nlogo.api.DefaultClassManager;
 import org.nlogo.api.Dump;
 import org.nlogo.api.ExtensionException;
 import org.nlogo.api.ExtensionManager;
-import org.nlogo.api.ExtensionObject;
 import org.nlogo.api.ImportErrorHandler;
 import org.nlogo.api.LogoException;
 import org.nlogo.api.PrimitiveManager;
+import org.nlogo.core.CompilerException;
+import org.nlogo.core.ExtensionObject;
 
 
 /**

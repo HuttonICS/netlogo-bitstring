@@ -11,6 +11,8 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="false" exportJavaFiles="true" exportOutputFolder="true">
-        <javaElement handleIdentifier="=netlogo-bitstring"/>
+        <javaElement handleIdentifier="=netlogo-bitstring/src"/>
+        <file path="/netlogo-bitstring/manifest.txt"/>
+        <file path="/netlogo-bitstring/.classpath"/>
     </selectedElements>
 </jardesc>

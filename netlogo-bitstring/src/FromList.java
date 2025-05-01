@@ -2,11 +2,12 @@ import java.util.LinkedList;
 
 import org.nlogo.api.Argument;
 import org.nlogo.api.Context;
-import org.nlogo.api.DefaultReporter;
+import org.nlogo.api.Reporter;
 import org.nlogo.api.ExtensionException;
 import org.nlogo.api.LogoException;
-import org.nlogo.api.LogoList;
-import org.nlogo.api.Syntax;
+import org.nlogo.core.LogoList;
+import org.nlogo.core.Syntax;
+import org.nlogo.core.SyntaxJ;
 
 
 /**
@@ -34,11 +35,11 @@ import org.nlogo.api.Syntax;
  * 
  * @author Gary Polhill
  */
-public class FromList extends DefaultReporter {
+public class FromList implements Reporter {
 
 	@Override
 	public Syntax getSyntax() {
-		return Syntax.reporterSyntax(new int[] { Syntax.ListType() },
+		return SyntaxJ.reporterSyntax(new int[] { Syntax.ListType() },
 																	Syntax.WildcardType());
 	}
 
@@ -47,7 +48,7 @@ public class FromList extends DefaultReporter {
 		LogoList list = args[0].getList();
 		Class<?> type = null;
 		int element = 0;
-		for(Object item: list) {
+		for(Object item: list.javaIterable()) {
 			element++;
 			if(type == null) {
 				type = item.getClass();
@@ -59,7 +60,7 @@ public class FromList extends DefaultReporter {
 		}
 		LinkedList<Boolean> bitlist = new LinkedList<Boolean>();
 
-		for(Object item: list) {
+		for(Object item: list.javaIterable()) {
 			if(item instanceof String) {
 				if("T".equalsIgnoreCase(item.toString()) || "TRUE".equalsIgnoreCase(item.toString())
 						|| "Y".equalsIgnoreCase(item.toString()) || "YES".equalsIgnoreCase(item.toString())
@@ -108,11 +109,6 @@ public class FromList extends DefaultReporter {
 			}
 		}
 		return new NetLogoBitstring(bitlist);
-	}
-
-	@Override
-	public String getAgentClassString() {
-		return "OTPL";
 	}
 
 }

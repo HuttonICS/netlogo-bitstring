@@ -1,9 +1,10 @@
 import org.nlogo.api.Argument;
 import org.nlogo.api.Context;
-import org.nlogo.api.DefaultReporter;
+import org.nlogo.api.Reporter;
 import org.nlogo.api.ExtensionException;
 import org.nlogo.api.LogoException;
-import org.nlogo.api.Syntax;
+import org.nlogo.core.Syntax;
+import org.nlogo.core.SyntaxJ;
 
 
 /**
@@ -31,7 +32,7 @@ import org.nlogo.api.Syntax;
  * 
  * @author Gary Polhill
  */
-public class GetBit extends DefaultReporter {
+public class GetBit implements Reporter {
 
 	public enum Mode {
 		RANDOM_ACCESS, FIRST, LAST
@@ -47,11 +48,11 @@ public class GetBit extends DefaultReporter {
 	public Syntax getSyntax() {
 		switch(mode) {
 		case RANDOM_ACCESS:
-			return Syntax.reporterSyntax(new int[] { Syntax.WildcardType(), Syntax.NumberType() },
+			return SyntaxJ.reporterSyntax(new int[] { Syntax.WildcardType(), Syntax.NumberType() },
 																		Syntax.BooleanType());
 		case FIRST:
 		case LAST:
-			return Syntax.reporterSyntax(new int[] { Syntax.WildcardType() }, Syntax.BooleanType());
+			return SyntaxJ.reporterSyntax(new int[] { Syntax.WildcardType() }, Syntax.BooleanType());
 		default:
 			throw new RuntimeException("PANIC!");
 		}
@@ -89,9 +90,5 @@ public class GetBit extends DefaultReporter {
 		return new Boolean(bs[0].get(pos));
 	}
 
-	@Override
-	public String getAgentClassString() {
-		return "OTPL";
-	}
 
 }
