@@ -86,6 +86,7 @@ public class BitstringExtension extends DefaultClassManager {
 		manager.addPrimitive("mutate", new Mutate());
 
 		manager.addPrimitive("to-list", new ToList());
+		manager.addPrimitive("to-string", new ToString());
 	}
 
 	@Override
@@ -136,7 +137,7 @@ public class BitstringExtension extends DefaultClassManager {
 				bs[i] = (NetLogoBitstring)obj;
 			}
 			else {
-				throw new ExtensionException("Command expents a bitstring as argument " + (pos[i] + 1) + " but got a "
+				throw new ExtensionException("Command expects a bitstring as argument " + (pos[i] + 1) + " but got a "
 						+ obj.getClass().getSimpleName());
 			}
 		}

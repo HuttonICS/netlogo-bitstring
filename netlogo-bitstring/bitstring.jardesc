@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <jardesc>
-    <jar path="/Users/gp40285/git/netlogo-bitstring/netlogo-bitstring/bitstring.jar"/>
+    <jar path="/Users/gary/git/netlogo-bitstring/netlogo-bitstring/bitstring.jar"/>
     <options buildIfNeeded="true" compress="false" descriptionLocation="/netlogo-bitstring/bitstring.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="true" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
@@ -11,8 +11,8 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="false" exportJavaFiles="true" exportOutputFolder="true">
-        <javaElement handleIdentifier="=netlogo-bitstring/src"/>
-        <file path="/netlogo-bitstring/manifest.txt"/>
         <file path="/netlogo-bitstring/.classpath"/>
+        <file path="/netlogo-bitstring/manifest.txt"/>
+        <javaElement handleIdentifier="=netlogo-bitstring/src"/>
     </selectedElements>
 </jardesc>

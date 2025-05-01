@@ -20,6 +20,9 @@ public class NetLogoBitstring extends Bitstring implements ExtensionObject {
 	}
 
 	protected static NetLogoBitstring manifest(String id_value) throws ExtensionException {
+		if(Bitstring.is10(id_value)) {
+			return new NetLogoBitstring(id_value);
+		}
 		String s[] = id_value.split(":");
 		long id = Long.parseLong(s[0]);
 
