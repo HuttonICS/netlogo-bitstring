@@ -87,6 +87,7 @@ public class BitstringExtension extends DefaultClassManager {
 
 		manager.addPrimitive("to-list", new ToList());
 		manager.addPrimitive("to-string", new ToString());
+		manager.addPrimitive("length", new Length());
 	}
 
 	@Override
